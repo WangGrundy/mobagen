@@ -1,46 +1,32 @@
 #include "CohesionRule.h"
 #include "../gameobjects/Boid.h"
+#include "AdditionalFunctions.h"
 
 Vector2f CohesionRule::computeForce(const std::vector<Boid*>& neighborhood, Boid* boid) {
-  Vector2f cohesionForce;
+  //Vector2f cohesionForce;
+  Vector2f positionCenter;
 
   // todo: add your code here to make a force towards the center of mass
   // hint: iterate over the neighborhood
 
   // find center of mass
-  bool CheckIfZeroS(const float& value);
-  bool CheckIfZeroS(const std::vector<Boid*>& neighborhood);
 
-  float xPos = 0;
-  float yPos = 0;
-
+  //add all positions together
   for(auto* i : neighborhood){ //Add all positions
-    xPos += i->getPosition().x;
-    yPos += i->getPosition().y;
+    positionCenter += i->getPosition(); //keep adding neighbourhood positions
   }
 
-  if(CheckIfZeroS(neighborhood)){ //don't average cohesion if neighbourhood is 0
-    return cohesionForce;
+  //check if there is no neighbourhood
+  if(AdditionalFunctions::CheckIfZero(neighborhood)){ //don't average cohesion if neighbourhood is 0
+    return boid->getPosition(); //return itself if its zero
+  }
+  else{
+    //divide and find the average neighbourhood position
+    positionCenter /= neighborhood.size();
   }
 
-  if(!CheckIfZeroS(xPos)){ //don't average cohesion if position is zero
-    xPos /= neighborhood.size();
-  }
-  if(!CheckIfZeroS(yPos)){
-    yPos /= neighborhood.size();
-  }
+  //find the vector from this boid position to the centre and return it
+  positionCenter = positionCenter - boid->getPosition();
 
-  //set Cohesion force
-  cohesionForce.x = xPos;
-  cohesionForce.y = yPos;
-
-  return cohesionForce;
-}
-
-bool CheckIfZeroS(const float& value){
-  return value == 0;
-}
-
-bool CheckIfZeroS(const std::vector<Boid*>& neighborhood){
-  return neighborhood.empty();
+  return positionCenter;
 }
