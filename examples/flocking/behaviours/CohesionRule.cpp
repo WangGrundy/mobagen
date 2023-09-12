@@ -3,7 +3,7 @@
 #include "AdditionalFunctions.h"
 
 Vector2f CohesionRule::computeForce(const std::vector<Boid*>& neighborhood, Boid* boid) {
-  //Vector2f cohesionForce;
+  Vector2f cohesionForce;
   Vector2f positionCenter;
 
   // todo: add your code here to make a force towards the center of mass
@@ -26,7 +26,7 @@ Vector2f CohesionRule::computeForce(const std::vector<Boid*>& neighborhood, Boid
   }
 
   //find the vector from this boid position to the centre and return it
-  positionCenter = positionCenter - boid->getPosition();
+  cohesionForce = positionCenter - boid->getPosition();
 
-  return positionCenter;
+  return cohesionForce;
 }

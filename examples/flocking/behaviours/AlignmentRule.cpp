@@ -14,7 +14,7 @@ Vector2f AlignmentRule::computeForce(const std::vector<Boid*>& neighborhood, Boi
     return boid->getVelocity();
   }
 
-  //iterate over the neighbourhood and add each velicity
+  //iterate over the neighbourhood and add each velocity
   for (auto* i : neighborhood){
     averageVelocity += i->getVelocity();
   }

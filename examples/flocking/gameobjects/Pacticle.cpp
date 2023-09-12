@@ -1,5 +1,6 @@
 #include "Pacticle.h"
 #include "Polygon.h"
+#include <iostream>
 
 Particle::Particle(Engine* pEngine, float size, Color32 color)
     : GameObject(pEngine), velocity(Vector2f::zero()), circleSize(size), color(color), acceleration(Vector2f::zero()) {

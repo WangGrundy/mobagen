@@ -13,12 +13,10 @@ bool AdditionalFunctions::CheckIfZero(const std::vector<Boid*>& neighborhood){
 }
 
 bool AdditionalFunctions::CheckIfZero(const Vector2f& vec){
-  if(vec.x == 0){
+  if (vec.x == 0 || vec.y == 0) {
     return true;
   }
-  if(vec.y == 0){
-    return true;
+  else {
+    return false;
   }
-
-  return false;
 }
