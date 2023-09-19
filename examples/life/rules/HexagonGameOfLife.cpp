@@ -24,19 +24,19 @@ void HexagonGameOfLife::Step(World& world) {
         if (numberOfNeighbours <= 1) {
           world.SetNext(currentLocation, false);
         }
-        // Each cell with two or three neighbors survives.
-        else if (numberOfNeighbours == 2 || numberOfNeighbours == 3) {
+        // Only the cells with two neighbors survives.
+        else if (numberOfNeighbours == 2) {
           world.SetNext(currentLocation, true);
         }
-        // Each cell with four or more neighbors dies, as if by overpopulation.
-        else if (numberOfNeighbours >= 4) {
+        // Each cell with three or more neighbors dies from overpopulation.
+        else if (numberOfNeighbours >= 3) {
           world.SetNext(currentLocation, false);
         }
 
       }
       else if (!isAlive) {  // if dead
-        // Each cell with three neighbors becomes populated.
-        if (numberOfNeighbours == 3) {
+        // Each cell with two neighbors revives.
+        if (numberOfNeighbours == 2) {
           world.SetNext(currentLocation, true);
         }
       }
@@ -59,31 +59,10 @@ int HexagonGameOfLife::CountNeighbors(World& world, Point2D point) {
 
 //B = initial block
   if((point.y % 2) == 0){ // EVEN ROW
-    //IF ON ODD ROW, IT WILL ALWAYS BE RIGHT
-//    Top Row = B.Top+Left, B.Top (MIDDLE = RIGHT)
-//    Bottom row = B.Bottom.Left, B.Bottom
 
-    if(world.Get(point.Up().Right())){
-      neighbourCount++;
-    }
-    if(world.Get(point.Up())){ //middle = right hand side
-      neighbourCount++;
-    }
-
-    if(world.Get(point.Down())){
-      neighbourCount++;
-    }
-    if(world.Get(point.Down().Right())){
-      neighbourCount++;
-    }
-
-  }
-  else{// ODD ROW
-
-    //IF ON ODD ROW, IT WILL ALWAYS BE RIGHT
-    //    Top row = B.Top , B.Top+Right (MIDDLE = LEFT)
-    //    Bottom row: B.Bottom, B.Bottom+Right
-    
+    //    Top Row = B.Top+Left, B.Top
+    //    Middle Row = B.Left, B.right
+    //    Bottom row = B.Bottom.Left, B.Bottom
 
     if(world.Get(point.Up().Left())){
       neighbourCount++;
@@ -98,6 +77,26 @@ int HexagonGameOfLife::CountNeighbors(World& world, Point2D point) {
     if(world.Get(point.Down())){
       neighbourCount++;
     }
+
+  }
+  else{// ODD ROW
+    //    Top row = B.Top , B.Top+Right
+       //     Middle row = B.Left, B.Right
+       //      Bottom row: B.Bottom, B.Bottom+Right
+
+       if(world.Get(point.Up())){ //middle = right hand side
+         neighbourCount++;
+       }
+       if(world.Get(point.Up().Right())){
+         neighbourCount++;
+       }
+
+       if(world.Get(point.Down())){
+         neighbourCount++;
+       }
+       if(world.Get(point.Down().Right())){
+         neighbourCount++;
+       }
   }
 
   return neighbourCount;
