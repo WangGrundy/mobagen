@@ -3,7 +3,7 @@
 #include "RecursiveBacktrackerExample.h"
 #include <climits>
 bool RecursiveBacktrackerExample::Step(World* w) {
-
+  return 0;
 }
 
 void RecursiveBacktrackerExample::Clear(World* world) {

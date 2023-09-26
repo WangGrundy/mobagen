@@ -3,7 +3,7 @@
 #include "Random.h"
 #include <climits>
 bool HuntAndKillExample::Step(World* w) {
-
+  return 0;
 }
 void HuntAndKillExample::Clear(World* world) {
   visited.clear();
