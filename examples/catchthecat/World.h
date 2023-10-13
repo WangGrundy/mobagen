@@ -21,8 +21,8 @@ private:
   bool catWon = false;
   bool catcherWon = false;
 
-  Cat* cat;
-  Catcher* catcher;
+  Cat* cat= nullptr;
+  Catcher* catcher= nullptr;
 
   // false means empty
   // true means blocked

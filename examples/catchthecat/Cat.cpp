@@ -1,130 +1,120 @@
 #include "Cat.h"
 #include "World.h"
 #include <stdexcept>
-#include <queue>
-#include <map>
-#include <vector>
-
-using std::queue;
-using std::map;
-using std::vector;
-
-map<int,map<int, bool>> visited; //visited nodes
-queue<Point2D> frontier; //nodes we about to visit
-map<int, Point2D> cameFrom; //left = came from, right point
-
-Point2D convertFromLinear(int linearPosition, World world);
 
 Point2D Cat::Move(World* world) {
-
-//  1. add all the neighbors to the frontier, then start the loop
-//  2. Then take from the frontier, add it to the visited, add all its available neighbors to the frontier
-
+  foundExit = false;
   visited.clear();
   frontier = queue<Point2D>();
   cameFrom.clear();
+  frontierSet.clear();
 
-  //get current position of cat
+  //get current position of cat //push Cat position onto queue
   Point2D catPosition = world->getCat();
-  //cat position
   frontier.push(catPosition);
+  frontierSet.insert(catPosition);
+  Point2D currentTile;
+ // frontierSet.insert(catPosition); //frontier set
 
-  //current position
-  Point2D currentPosition = catPosition;
+  while(!frontier.empty()){ //keep repeating this until frontier is empty
 
-  //keep repeating this until frontier is empty
-  while(!frontier.empty()){
+    // get the current from frontier
+    currentTile = frontier.front();
 
-    //choose next point:
-    Point2D next = frontier.front();
-
-    //frontier pop the current position/ consume current position
+    //frontier pop from frontier
     frontier.pop(); //current position
-
-    //get all neighbours
-    vector<Point2D> neighboursVisitable = world->neighbors(currentPosition);
+    frontierSet.erase(currentTile);
 
     //if cat wins on this tile:
-    if(world->catWinsOnSpace(currentPosition)){
+    if(world->catWinsOnSpace(currentTile)){
+      foundExit = true;
+      std::cout << "---------FOUND WINNING TILE: ------\n";
+      std::cout << currentTile.x << " " << currentTile.y << std::endl;
       break;
     }
 
-    //is cat blocked off?
-    for(int i = 0; i <  neighboursVisitable.size() - 1; i++){
+    //mark current as visited
+    visited[currentTile.x][currentTile.y] = true;
 
-      //only add to frontier if cat is able to move onto tile
-      if(world->catCanMoveToPosition(neighboursVisitable[i]) && !visited[currentPosition.x][currentPosition.y]){
-        //adds all neighbours to frontier
-        frontier.push(neighboursVisitable[i]);
-      }
-    }
+    //add visitable neighbours to frontier
+    GetAllVisitableNeighboursAndPushOnFrontier(catPosition, currentTile, world);
 
-    //visit the next element in queue.
-    visited[next.x][next.y] = true;
+    //take next node from frontier
+    Point2D nextTile = frontier.front();
 
-    //for every element, check neighbourhood and store came_from
-    cameFrom.insert({world->getWorldSideSize() * currentPosition.y + currentPosition.x, next});
-
-    currentPosition = next;
+    //store came from
+    cameFrom[nextTile.x][nextTile.y] = currentTile;
   }
 
-  //convert from tail to head... but which tail do I use?
+  //if not found a successful tile, move randomly
+  if(!foundExit){
+    return ReturnIfNoPathToWin(currentTile, frontier);
+  }
 
-  //convert between linear to Point2D = x,y
-  //int x =
+  //Find Head of came from which isn't the cat position, to find next tile
+  //TODO: check if its nextTile or currentTile that should be inputted
+  Point2D nextTile = FindHead(catPosition, currentTile, cameFrom);
 
-  //convertFromLinear(currentPosition, world);
-
-  //for(int i = 0; i < )
-
-  return convertFromLinear(world->getWorldSideSize() * currentPosition.y + currentPosition.x, *world);
+  return {nextTile.x,nextTile.y};
 }
 
-//The rules of my algorithm for the cat will be:
-//Cat will find path to nearest square to move to the closest exit
-//if cat finds multiple exits worth the same, then choose 1 randomly
-//cat will continue to do this until it has 0 possible squares to go to
+Point2D Cat::ReturnIfNoPathToWin(Point2D currentPosition, queue<Point2D>& frontier){
+  int randomNumber = Random::Range(0, frontier.size());
 
-//BFS
-//Pick and remove a location from the frontier.Expand it by looking at its neighbors.
-// Skip walls. Any unreached neighbors we add to both the frontier and the reached set
+  //return random neighbour
+  for(int i = 0; i < randomNumber; i++){
+    frontier.pop();
+    currentPosition = frontier.front();
+  }
 
-////this function should add all countable neighbours into the vector and return that
-//vector<Point2D> Cat::GetVisitableNeighbours(World* world, const Point2D& catPos){
-//
-//  //Check all sides of the cat tile:
-//
-//  if(world->neighbors())
-//
-//  world->getContent(Point2D(0,0)); //checks for blocked tiles
-//
-//
-//
-//}
+  std::cout << "---------NO NEIGHBOUR, RANDOM TILE: ------\n";
+  std::cout << currentPosition.x << " " << currentPosition.y << std::endl;
+  return {currentPosition.x,currentPosition.y};
+}
 
+Point2D Cat::FindHead(Point2D catPosition, Point2D& nextTile, map<int, map<int, Point2D>>& cameFrom ){
 
-//switch (rand) {
-//  case 0:
-//    return World::NE(pos);
-//  case 1:
-//    return World::NW(pos);
-//  case 2:
-//    return World::E(pos);
-//  case 3:
-//    return World::W(pos);
-//  case 4:
-//    return World::SW(pos);
-//  case 5:
-//    return World::SE(pos);
-//  default:
-//    throw "random out of range";
-//}
+  //loop until head of map
+  while(nextTile != catPosition){
+    //run through entire map, to find head
+    if(cameFrom[nextTile.x][nextTile.y] == catPosition){
+      break;
+    }
+    //find tile that was before this one
+    nextTile = cameFrom[nextTile.x][nextTile.y];
+  }
 
-Point2D convertFromLinear(int linearPosition, World world){
+  //TODO: create a path vector to make it simpler
+  std::cout << "---------NEXT TILE: ------\n";
+  std::cout << nextTile.x << " " << nextTile.y << std::endl;
+}
 
-  int x = linearPosition % world.getWorldSideSize();
-  int y = linearPosition / world.getWorldSideSize();
+void Cat::GetAllVisitableNeighboursAndPushOnFrontier(Point2D catPosition, Point2D currentTile, World* world){
 
-  Point2D temp(x,y);
-  return temp;
+  //get all neighbours of currentTile
+  vector<Point2D> neighboursVisitable = world->neighbors(currentTile);
+
+  //std::cout << "neighbour list: \n";
+  //Cycles through all neighbours that are visitable on next tile
+  for(int i = 0; i <  neighboursVisitable.size(); i++){
+    //not visited
+    if(!visited[neighboursVisitable[i].x][neighboursVisitable[i].y]){
+      //not cat
+      if(catPosition != neighboursVisitable[i]) {
+        //not blocked
+        if(!world->getContent(neighboursVisitable[i])){
+          if(!frontierSet.contains(neighboursVisitable[i])){
+            //TODO: Make sure frontier doesn't contain duplicates
+            //push to frontier  //push to frontier set
+            frontier.push(neighboursVisitable[i]);
+            frontierSet.insert(neighboursVisitable[i]);
+            //std::cout << "x: " << neighboursVisitable[i].x << " y:" << neighboursVisitable[i].y << std::endl;
+            //store came from, do I need to do it here??
+            //cameFrom[neighboursVisitable[i].x][neighboursVisitable[i].y] = currentTile;
+          }
+        }
+      }
+    }
+  }
+  //std::cout << "-----------------------------" << std::endl;
 }
