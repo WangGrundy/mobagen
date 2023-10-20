@@ -6,7 +6,6 @@ Point2D Cat::Move(World* world) {
 
   if(path.empty()){
     Point2D randomTile = getRandomTileNextToCat(world);
-    //std::cout << "Cat no path, generating random tile: ///// X: " << randomTile.x << "|| Y: " << randomTile.y << std::endl;
     return randomTile;
   }
 
